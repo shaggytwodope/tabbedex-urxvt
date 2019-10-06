@@ -21,10 +21,12 @@
 ## The following has been added:
 ##
 ## 1. Depending on time of last activity, activity character differs.
-##    By default, after 4 seconds an asterisk becomes a plus sing,
-##    after next 4 it becomes a colon, and finally, after another 8
-##    seconds it becomes a dot.  This can be configured via
-##    tabbar-timeouts resource.  It's format is:
+##    By default, a dot will be added every few seconds, until 8 dots
+##    are reached after one minute. Then a block will grow vertically
+##    over the next two minutes, and finally a block will expand
+##    horizontally until reaching full width after another 10 minutes.
+##    This can be configured via tabbar-timeouts resource.
+##    It's format is:
 ##
 ##      ( <timeout> ":" <character> ":" )* <timeout> ":" <character> ":"
 ##
@@ -217,7 +219,7 @@ sub refresh {
         if ($idx >= $tabs_to_skip) {
             my $name = substr($tab->{name} ? $tab->{name} : $idx, -$max_len);
             my $act = $self->tab_activity_mark($tab);
-            my $txt = sprintf "%s%s%s", $act, $name, $act;
+            my $txt = sprintf " %s%s", $name, $act;
             my $len = length $txt;
 
             substr $text, $ofs, $len + 1, "$txt|";
@@ -454,7 +456,7 @@ sub on_init {
 
 
     my $timeouts = $self->x_resource ("tabbar-timeouts");
-    $timeouts = '16:.:8:::4:+' unless defined $timeouts;
+    $timeouts = '0:⡀:2:⡄:5:⡆:9:⡇:18:⣇:30:⣧:45:⣷:60:⣿:70:▁:80:▂:90:▃:120:▄:150:▅:180:▆:210:▎:270:▍:420:▋:580:▊:780:█' unless defined $timeouts;
     if ($timeouts ne '') {
         my @timeouts;
         while ($timeouts =~ /^(\d+):(.)(?::(.*))?$/) {
